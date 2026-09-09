@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Redaction Gate</title>
+    <style>
+      :root {
+        --bg: #0d1117;
+        --bg-elevated: #161b22;
+        --fg: #f0f6fc;
+        --fg-muted: #8b949e;
+        --line: #30363d;
+        --line-subtle: #21262d;
+        --panel: #161b22;
+        --accent: #58a6ff;
+        --accent-glow: rgba(88, 166, 255, 0.15);
+        --ok: #3fb950;
+        --ok-glow: rgba(63, 185, 80, 0.15);
+        --warn: #d29922;
+        --bad: #f85149;
+        --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+        --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #ffffff;
+          --bg-elevated: #f6f8fa;
+          --fg: #1f2328;
+          --fg-muted: #656d76;
+          --line: #d0d7de;
+          --line-subtle: #eaeef2;
+          --panel: #f6f8fa;
+          --accent: #0969da;
+          --accent-glow: rgba(9, 105, 218, 0.1);
+          --ok: #1a7f37;
+          --ok-glow: rgba(26, 127, 55, 0.1);
+          --warn: #9a6700;
+          --bad: #cf222e;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        font-family: var(--font-sans);
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--fg);
+        background: var(--bg);
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Premium Tab Strip */
+      nav {
+        display: flex;
+        align-items: center;
+        flex: 0 0 auto;
+        padding: 6px 8px 0;
+        border-bottom: 1px solid var(--line);
+        background: var(--bg);
+        gap: 4px;
+        user-select: none;
+      }
+      nav button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        flex: 1;
+        padding: 8px 10px;
+        border: 1px solid transparent;
+        border-bottom: 2px solid transparent;
+        border-radius: 6px 6px 0 0;
+        background: none;
+        color: var(--fg-muted);
+        font-family: var(--font-sans);
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        white-space: nowrap;
+      }
+      nav button svg {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+        opacity: 0.75;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+      }
+      nav button:hover {
+        color: var(--fg);
+        background: var(--accent-glow);
+      }
+      nav button:hover svg {
+        opacity: 1;
+        transform: translateY(-0.5px);
+      }
+      nav button[aria-selected='true'] {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+        background: var(--bg-elevated);
+        font-weight: 600;
+      }
+      nav button[aria-selected='true'] svg {
+        opacity: 1;
+        stroke: var(--accent);
+      }
+      nav button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+      }
+
+      .views {
+        flex: 1 1 auto;
+        position: relative;
+        min-height: 0;
+        background: var(--bg);
+      }
+      iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: var(--bg);
+      }
+      iframe[hidden] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <nav role="tablist" aria-label="Redaction Gate Navigation">
+      <button id="tab-agent" role="tab" aria-selected="true" aria-controls="view-agent">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 8V4H8" />
+          <rect width="16" height="12" x="4" y="8" rx="2" />
+          <path d="M2 14h2" />
+          <path d="M20 14h2" />
+          <path d="M15 13v2" />
+          <path d="M9 13v2" />
+        </svg>
+        Agent
+      </button>
+      <button id="tab-sent" role="tab" aria-selected="false" aria-controls="view-sent">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+        What was sent
+      </button>
+      <button id="tab-resources" role="tab" aria-selected="false" aria-controls="view-resources">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+        </svg>
+        Resources
+      </button>
+    </nav>
+
+    <div class="views">
+      <iframe id="view-agent" role="tabpanel" title="Agent" src="agent.html"></iframe>
+      <iframe id="view-sent" role="tabpanel" title="What was sent" hidden></iframe>
+      <iframe id="view-resources" role="tabpanel" title="Resources" hidden></iframe>
+    </div>
+
+    <script src="panel.js"></script>
+  </body>
+</html>
